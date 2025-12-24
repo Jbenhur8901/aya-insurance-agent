@@ -1,0 +1,38 @@
+# FastAPI & Web Framework
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+python-multipart==0.0.12
+
+# Pydantic
+pydantic>=2.12.3,<3.0.0
+pydantic-settings>=2.5.2
+
+# OpenAI
+openai>=2.9.0,<3.0.0
+openai-agents==0.6.4
+
+# Google Gemini
+google-generativeai==0.8.3
+
+# Database & Storage
+supabase==2.10.0
+redis==5.2.0
+
+# Data Processing
+pandas==2.2.0
+openpyxl==3.1.0
+
+# PDF Generation
+weasyprint==62.0
+segno==1.6.0
+Pillow==11.0.0
+
+# HTTP Client
+httpx>=0.26,<0.28
+requests>=2.32.3
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Utilities
+python-jose[cryptography]==3.3.0

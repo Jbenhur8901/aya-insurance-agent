@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposition Assurances - NSIA Congo</title>
+    <style>
+        @page {{
+            size: A4 portrait;
+            margin: 8mm;
+        }}
+        body {{
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }}
+        .receipt {{
+            width: 100%;
+            margin: 0 auto;
+            padding: 15px;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }}
+        .header {{
+            border-bottom: 2px solid #233064;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+        }}
+        .company-info {{
+            font-size: 9px;
+            line-height: 1.4;
+            color: #999999;
+            margin-top: 10px;
+            text-align: center;
+        }}
+        .receipt-title {{
+            font-size: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #233064;
+            margin: 15px 0 12px;
+            letter-spacing: 0.5px;
+            text-align: center;
+        }}
+        .info-grid {{
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 11px;
+            color: #888888;
+        }}
+        .info-grid strong {{
+            color: #233064;
+        }}
+        .info-section {{
+            background-color: #ffffff;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid #233064;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }}
+        .info-section.dark {{
+            background-color: #ffffff;
+            border-left: 3px solid #233064;
+        }}
+        .info-line {{
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: #555555;
+        }}
+        .info-line strong {{
+            color: #233064;
+            min-width: 120px;
+            display: inline-block;
+        }}
+        .amount-table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 12px;
+        }}
+        .amount-table th {{
+            background-color: #ffffff;
+            color: #4a4a4a;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e0e0e0;
+        }}
+        .amount-table td {{
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #555555;
+        }}
+        .amount-table tbody tr:hover {{
+            background-color: #ffffff;
+        }}
+        .amount-table tfoot td {{
+            font-weight: 600;
+            background-color: #ffffff;
+            color: #233064;
+            font-size: 14px;
+            padding: 12px 10px;
+            border-top: 2px solid #233064;
+            border-bottom: none;
+        }}
+        .amount-table tfoot td:last-child {{
+            text-align: right;
+        }}
+        .barcode {{
+            text-align: center;
+            margin: 15px 0;
+            padding: 12px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }}
+        .barcode img {{
+            max-width: 150px;
+            height: auto;
+        }}
+        .reference-number {{
+            text-align: center;
+            font-size: 11px;
+            color: #999999;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }}
+        .footer {{
+            text-align: center;
+            margin-top: 15px;
+            font-size: 9px;
+            color: #aaaaaa;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 12px;
+        }}
+        .notice {{
+            background-color: #ffffff;
+            border-left: 3px solid #233064;
+            padding: 10px;
+            font-size: 11px;
+            margin: 15px 0;
+            color: #555555;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }}
+        .notice strong {{
+            color: #233064;
+        }}
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <header class="header">
+            {logo_section}
+            <div class="company-info">
+                NSIA ASSURANCES, Société Anonyme avec Conseil d'Administration, entreprise régie par le Code des assurances,<br> 
+                au capital de 5 805 000 000 FCFA, sise au numéro 01, Avenue Cardinal Emile BIAYENDA, angle de rue sergent MALAMINE Brazzaville Congo,<br>
+                immatriculée au Registre du Commerce et du Crédit Mobilier du Congo sous le numéro CG-BZV-01-2024-B-15-00034, le 24/12/21.<br>
+                Tél. : (00 242) 222 82 24 92 | E-mail : nsiacongo@groupensia.com | Site : www.groupensia.com
+            </div>
+        </header>
+
+        <main>
+            <h1 class="receipt-title">Proposition d'Assurance {product_name}</h1>
+            
+            <section class="info-grid">
+                <div><strong>Date :</strong> {generation_date}</div>
+                <div><strong>N° Proposition :</strong> {receipt_number}</div>
+            </section>
+
+            <section class="info-section">
+                <div class="info-line"><strong>Nom complet :</strong> <span>{nom_complet}</span></div>
+                <div class="info-line"><strong>Téléphone :</strong> <span>{telephone}</span></div>
+                <div class="info-line"><strong>Ville :</strong> <span>{ville}</span></div>
+            </section>
+
+            <section class="info-section dark">
+                <div class="info-line"><strong>Produit :</strong> {product_name}</div>
+                <div class="info-line"><strong>Type :</strong> {product_type}</div>
+                <div class="info-line"><strong>Période :</strong>{couverture}</div>
+            </section>
+
+            {promo_section}
+
+            <table class="amount-table">
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 600; font-size: 14px; color: #233064;">Prime à Payer TTC</td>
+                        <td style="text-align: right; font-weight: 600; font-size: 14px; color: #233064;">{prime_a_payer_ttc} FCFA</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="barcode">
+                <img src={barcode_base64} alt="Code-barres">
+            </div>
+            <div class="reference-number">{reference_number}</div>
+
+            <div class="notice">
+                <strong>Note :</strong> Ce document constitue une proposition {product_name} et n'est pas un reçu de paiement. Il est fourni à titre informatif pour votre souscription future.
+            </div>
+        </main>
+
+        <footer class="footer">
+            Document généré automatiquement par AYA, Conseillère en assurance digitale - NSIA ASSURANCES CONGO
+        </footer>
+    </div>
+</body>
+</html>

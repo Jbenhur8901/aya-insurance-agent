@@ -1,0 +1,71 @@
+{
+  "forfaits": {
+    "standard": {
+      "nom": "Standard",
+      "prime_annuelle": 25500,
+      "couverture": 22000000,
+      "description": "Couverture jusqu'à 22 millions FCFA pour votre logement et vos biens"
+    },
+    "equilibre": {
+      "nom": "Équilibre",
+      "prime_annuelle": 35000,
+      "couverture": 33000000,
+      "description": "Couverture jusqu'à 33 millions FCFA pour votre logement et vos biens"
+    },
+    "confort": {
+      "nom": "Confort",
+      "prime_annuelle": 50000,
+      "couverture": 55000000,
+      "description": "Couverture jusqu'à 55 millions FCFA pour votre logement et vos biens"
+    },
+    "premium": {
+      "nom": "Premium",
+      "prime_annuelle": 120750,
+      "couverture": 115000000,
+      "description": "Couverture jusqu'à 115 millions FCFA pour votre logement et vos biens"
+    }
+  },
+  "garanties_incluses": {
+    "standard": [
+      "Incendie et événements assimilés",
+      "Dégâts des eaux",
+      "Vol et vandalisme",
+      "Responsabilité civile vie privée",
+      "Bris de glace"
+    ],
+    "equilibre": [
+      "Incendie et événements assimilés",
+      "Dégâts des eaux",
+      "Vol et vandalisme",
+      "Responsabilité civile vie privée",
+      "Bris de glace",
+      "Catastrophes naturelles",
+      "Dommages électriques"
+    ],
+    "confort": [
+      "Incendie et événements assimilés",
+      "Dégâts des eaux",
+      "Vol et vandalisme",
+      "Responsabilité civile vie privée",
+      "Bris de glace",
+      "Catastrophes naturelles",
+      "Dommages électriques",
+      "Protection juridique",
+      "Assistance habitation 24h/24"
+    ],
+    "premium": [
+      "Incendie et événements assimilés",
+      "Dégâts des eaux",
+      "Vol et vandalisme",
+      "Responsabilité civile vie privée",
+      "Bris de glace",
+      "Catastrophes naturelles",
+      "Dommages électriques",
+      "Protection juridique",
+      "Assistance habitation 24h/24",
+      "Objets de valeur",
+      "Jardin et dépendances",
+      "Piscine"
+    ]
+  }
+}

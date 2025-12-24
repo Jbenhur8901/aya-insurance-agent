@@ -1,0 +1,80 @@
+{
+  "description": "Assurance Individuelle Accident (IAC) NSIA",
+  "tarification": {
+    "prime_ttc": 12500,
+    "devise": "FCFA",
+    "periode": "annuelle",
+    "note": "Tarif unique pour tous les statuts professionnels"
+  },
+  "statuts_professionnels": [
+    {
+      "code": "commercant",
+      "label": "Commerçant",
+      "description": "Pour les personnes exerçant une activité commerciale"
+    },
+    {
+      "code": "travailleur_independant",
+      "label": "Travailleur Indépendant",
+      "description": "Pour les professionnels indépendants (consultants, freelances, etc.)"
+    },
+    {
+      "code": "entrepreneur",
+      "label": "Entrepreneur",
+      "description": "Pour les créateurs et dirigeants d'entreprise"
+    }
+  ],
+  "garanties_incluses": [
+    "Décès par accident",
+    "Invalidité permanente totale ou partielle",
+    "Frais médicaux suite à accident",
+    "Indemnités journalières d'hospitalisation",
+    "Capital en cas d'incapacité temporaire de travail"
+  ],
+  "capitaux_garantis": {
+    "deces_accident": {
+      "montant": 5000000,
+      "description": "Capital versé en cas de décès accidentel"
+    },
+    "invalidite_permanente_totale": {
+      "montant": 5000000,
+      "description": "Capital versé en cas d'invalidité permanente totale"
+    },
+    "frais_medicaux": {
+      "montant": 500000,
+      "description": "Prise en charge des frais médicaux suite à un accident"
+    },
+    "indemnites_hospitalisations": {
+      "montant": 5000,
+      "unite": "par jour",
+      "duree_max_jours": 365,
+      "description": "Indemnités journalières en cas d'hospitalisation"
+    }
+  },
+  "documents_requis": [
+    {
+      "type": "passeport",
+      "label": "Passeport",
+      "obligatoire": false
+    },
+    {
+      "type": "niu",
+      "label": "NIU (Numéro d'Identification Unique)",
+      "obligatoire": false
+    },
+    {
+      "type": "cni",
+      "label": "CNI (Carte Nationale d'Identité)",
+      "obligatoire": false
+    }
+  ],
+  "informations_complementaires": {
+    "secteur_activite": {
+      "requis": true,
+      "description": "Secteur d'activité professionnelle"
+    },
+    "lieu_travail": {
+      "requis": true,
+      "description": "Lieu d'exercice de l'activité professionnelle"
+    }
+  }
+}
