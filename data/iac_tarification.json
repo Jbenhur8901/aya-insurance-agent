@@ -30,26 +30,6 @@
     "Indemnités journalières d'hospitalisation",
     "Capital en cas d'incapacité temporaire de travail"
   ],
-  "capitaux_garantis": {
-    "deces_accident": {
-      "montant": 5000000,
-      "description": "Capital versé en cas de décès accidentel"
-    },
-    "invalidite_permanente_totale": {
-      "montant": 5000000,
-      "description": "Capital versé en cas d'invalidité permanente totale"
-    },
-    "frais_medicaux": {
-      "montant": 500000,
-      "description": "Prise en charge des frais médicaux suite à un accident"
-    },
-    "indemnites_hospitalisations": {
-      "montant": 5000,
-      "unite": "par jour",
-      "duree_max_jours": 365,
-      "description": "Indemnités journalières en cas d'hospitalisation"
-    }
-  },
   "documents_requis": [
     {
       "type": "passeport",

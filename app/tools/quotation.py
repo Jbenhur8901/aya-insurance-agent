@@ -647,4 +647,3 @@ def validate_iac_statut(statut: str) -> bool:
     except Exception as e:
         logging.error(f"Erreur lors de la validation du statut IAC: {e}")
         return False
-

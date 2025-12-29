@@ -176,7 +176,7 @@ Pour toute question, contactez le service client NSIA au +242 06 XXX XX XX.
 
             # Upload vers Supabase
             file_path = f"receipts/{souscription_id}.pdf"
-            url = await self.db.upload_file("documents", file_path, pdf_data)
+            url = await self.db.upload_file("receipts", file_path, pdf_data)
 
             # Supprimer le fichier temporaire
             if os.path.exists(pdf_path):

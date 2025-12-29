@@ -77,7 +77,7 @@ class ClientInDB(ClientBase):
 
 class SouscriptionBase(BaseModel):
     """Base souscription information"""
-    producttype: Literal["auto", "voyage", "iac", "mrh"]
+    producttype: Literal["NSIA AUTO", "NSIA VOYAGE", "NSIA INDIVIDUEL ACCIDENTS", "NSIA MULTIRISQUE HABITATION"]
     prime_ttc: Optional[float] = None
     coverage_duration: Optional[str] = None
     codepromo: Optional[str] = None
@@ -223,7 +223,7 @@ class DocumentUpload(BaseModel):
     """Upload de document"""
     souscription_id: UUID
     document_url: str
-    type: Literal["carte_grise", "passeport", "niu", "cni", "autre"]
+    type: str
     nom: Optional[str] = None
 
 

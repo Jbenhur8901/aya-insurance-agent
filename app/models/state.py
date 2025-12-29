@@ -8,6 +8,33 @@ from uuid import UUID
 
 
 # ============================================================================
+# MAPPING HELPERS - Conversion entre valeurs internes et valeurs DB
+# ============================================================================
+
+PRODUCT_TYPE_TO_DB = {
+    "auto": "NSIA AUTO",
+    "voyage": "NSIA VOYAGE",
+    "iac": "NSIA INDIVIDUEL ACCIDENTS",
+    "mrh": "NSIA MULTIRISQUE HABITATION"
+}
+
+DB_TO_PRODUCT_TYPE = {
+    "NSIA AUTO": "auto",
+    "NSIA VOYAGE": "voyage",
+    "NSIA INDIVIDUEL ACCIDENTS": "iac",
+    "NSIA MULTIRISQUE HABITATION": "mrh"
+}
+
+def product_type_to_db(product_type: str) -> str:
+    """Convertit le type de produit interne vers le format DB"""
+    return PRODUCT_TYPE_TO_DB.get(product_type, product_type)
+
+def db_to_product_type(db_value: str) -> str:
+    """Convertit le type de produit DB vers le format interne"""
+    return DB_TO_PRODUCT_TYPE.get(db_value, db_value)
+
+
+# ============================================================================
 # CONVERSATION STATE
 # ============================================================================
 

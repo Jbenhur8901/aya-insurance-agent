@@ -390,7 +390,7 @@ async def get_or_create_client(phone_number: str, fullname: Optional[str] = None
 @function_tool
 async def create_souscription(
     client_id: str,
-    product_type: Literal["auto", "voyage", "iac", "mrh"],
+    product_type: Literal["NSIA AUTO", "NSIA VOYAGE", "NSIA INDIVIDUEL ACCIDENTS", "NSIA MULTIRISQUE HABITATION"],
     prime_ttc: float,
     coverage_duration: str
 ) -> Dict[str, Any]:
@@ -399,7 +399,8 @@ async def create_souscription(
 
     Args:
         client_id: ID du client (UUID)
-        product_type: Type de produit (auto, voyage, iac, mrh)
+        product_type: Type de produit - DOIT être exactement l'une des valeurs suivantes:
+                     "NSIA AUTO", "NSIA VOYAGE", "NSIA INDIVIDUEL ACCIDENTS", "NSIA MULTIRISQUE HABITATION"
         prime_ttc: Prime TTC en FCFA
         coverage_duration: Durée de couverture (3M, 6M, 12M)
 
@@ -411,8 +412,29 @@ async def create_souscription(
 
         from uuid import UUID
 
+        # Valider et convertir client_id en UUID
+        try:
+            client_uuid = UUID(client_id)
+        except (ValueError, AttributeError) as e:
+            logger.error(f"❌ UUID invalide pour client_id: {client_id}")
+            return {
+                "error": "UUID invalide",
+                "message": f"Le client_id fourni n'est pas un UUID valide: {client_id}"
+            }
+
+        # Vérifier que le client existe dans la DB
+        client = await supabase_service.get_client_by_id(client_uuid)
+        if not client:
+            logger.error(f"❌ Client inexistant dans la DB: {client_id}")
+            return {
+                "error": "Client inexistant",
+                "message": f"Le client avec l'ID {client_id} n'existe pas dans la base de données. Veuillez d'abord créer le client avec get_or_create_client."
+            }
+
+        logger.info(f"✅ Client validé: {client.id}")
+
         souscription_data = SouscriptionCreate(
-            client_id=UUID(client_id),
+            client_id=client_uuid,
             producttype=product_type,
             prime_ttc=prime_ttc,
             coverage_duration=coverage_duration,
@@ -828,8 +850,8 @@ async def initiate_momo_payment(
             souscription_id=UUID(souscription_id),
             amount=amount,
             reference=reference,
-            payment_method="momo",
-            status="pending"
+            payment_method="MTN_MOBILE_MONEY",
+            status="en_attente"
         )
 
         logger.info(f"✅ Paiement MTN MoMo initié: {reference}")
@@ -906,8 +928,8 @@ async def initiate_airtel_payment(
             souscription_id=UUID(souscription_id),
             amount=amount,
             reference=reference,
-            payment_method="airtel",
-            status="pending"
+            payment_method="AIRTEL_MOBILE_MONEY",
+            status="en_attente"
         )
 
         logger.info(f"✅ Paiement Airtel Money initié: {reference}")
@@ -935,6 +957,230 @@ Composez votre code PIN pour valider le paiement."""
             "success": False,
             "error": str(e),
             "message": "Erreur lors de l'initiation du paiement Airtel Money."
+        }
+
+
+# ============================================================================
+# HELPER FUNCTIONS - Fonctions internes
+# ============================================================================
+
+async def _generate_proposal_internal(
+    souscription_id: str,
+    client_name: str,
+    phone: str,
+    product_type: str,
+    amount: float,
+    reference: str,
+    is_paid: bool = False
+) -> Dict[str, Any]:
+    """
+    Fonction interne pour générer une proposition d'assurance.
+    Utilisée par initiate_pay_on_delivery et initiate_pay_on_agency.
+    """
+    try:
+        from app.tools.receipts import generate_product_receipt_pdf
+        import os
+
+        logger.info(f"📄 Génération proposition pour {client_name}")
+
+        # Nom du fichier temporaire
+        filename = f"/tmp/proposition_{souscription_id}.pdf"
+
+        # Générer la proposition
+        success = generate_product_receipt_pdf(
+            output_filename=filename,
+            nom_complet=client_name,
+            telephone=phone,
+            ville="N/A",
+            product_type=product_type,
+            prime_a_payer_ttc=str(amount),
+            receipt_number=reference,
+            template_path="product_proposal.txt" if not is_paid else "paid_product_receipt.txt",
+            product_name=product_type
+        )
+
+        if not success or not os.path.exists(filename):
+            return {
+                "success": False,
+                "error": "Génération échouée"
+            }
+
+        # Upload vers Supabase Storage
+        with open(filename, "rb") as f:
+            pdf_data = f.read()
+
+        file_path = f"proposals/{souscription_id}.pdf"
+        pdf_url = await supabase_service.upload_file("receipts", file_path, pdf_data)
+
+        # Supprimer le fichier temporaire
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        # Sauvegarder dans documents
+        from app.models.schemas import DocumentUpload
+        from uuid import UUID
+        await supabase_service.save_document(
+            DocumentUpload(
+                souscription_id=UUID(souscription_id),
+                document_url=pdf_url,
+                type="proposition",
+                nom=f"Proposition_{souscription_id}.pdf"
+            )
+        )
+
+        logger.info(f"✅ Proposition générée: {pdf_url}")
+
+        return {
+            "success": True,
+            "pdf_url": pdf_url,
+            "message": "Proposition générée avec succès"
+        }
+
+    except Exception as e:
+        logger.error(f"❌ Erreur génération proposition: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+@function_tool
+async def generate_insurance_proposal(
+    souscription_id: str,
+    client_name: str,
+    phone: str,
+    product_type: str,
+    amount: float,
+    reference: str,
+    is_paid: bool = False
+) -> Dict[str, Any]:
+    """
+    Génère une proposition d'assurance (document non-payé).
+
+    Args:
+        souscription_id: ID de la souscription
+        client_name: Nom du client
+        phone: Téléphone du client
+        product_type: Type de produit
+        amount: Montant
+        reference: Référence de transaction
+        is_paid: False pour proposition, True pour reçu final
+
+    Returns:
+        URL du PDF généré
+    """
+    return await _generate_proposal_internal(
+        souscription_id=souscription_id,
+        client_name=client_name,
+        phone=phone,
+        product_type=product_type,
+        amount=amount,
+        reference=reference,
+        is_paid=is_paid
+    )
+
+
+@function_tool
+async def initiate_pay_on_delivery(
+    amount: float,
+    souscription_id: str,
+    product_type: str,
+    client_name: str,
+    client_phone: str
+) -> Dict[str, Any]:
+    """
+    Enregistre un paiement à la livraison (PAY_ON_DELIVERY).
+
+    Ce mode de paiement ne nécessite pas de paiement en ligne.
+    La proposition d'assurance est envoyée immédiatement et le paiement
+    sera effectué lors de la livraison du document.
+
+    Args:
+        amount: Montant en FCFA
+        souscription_id: ID de la souscription
+        product_type: Type de produit (auto, voyage, etc.)
+        client_name: Nom du client
+        client_phone: Téléphone du client
+
+    Returns:
+        Dictionnaire avec les détails du paiement et URL de la proposition
+    """
+    try:
+        logger.info(f"📦 Initiation paiement à la livraison pour {client_name}")
+
+        # Appeler le service Mobile Money pour traiter le paiement à la livraison
+        from app.services.mobile_money import mobile_money_service
+
+        result = await mobile_money_service.process_pay_on_delivery(
+            souscription_id=souscription_id,
+            client_name=client_name,
+            client_phone=client_phone,
+            product_type=product_type,
+            amount=amount
+        )
+
+        return result
+
+    except Exception as e:
+        logger.error(f"❌ Erreur paiement à la livraison: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Erreur lors de l'enregistrement du paiement à la livraison."
+        }
+
+
+@function_tool
+async def initiate_pay_on_agency(
+    amount: float,
+    souscription_id: str,
+    product_type: str,
+    client_name: str,
+    client_phone: str
+) -> Dict[str, Any]:
+    """
+    Enregistre un paiement en agence (PAY_ON_AGENCY).
+
+    Ce mode de paiement ne nécessite pas de paiement en ligne.
+    La proposition d'assurance est envoyée immédiatement et le paiement
+    sera effectué directement en agence NSIA.
+
+    Args:
+        amount: Montant en FCFA
+        souscription_id: ID de la souscription
+        product_type: Type de produit (auto, voyage, etc.)
+        client_name: Nom du client
+        client_phone: Téléphone du client
+
+    Returns:
+        Dictionnaire avec les détails du paiement et URL de la proposition
+    """
+    try:
+        logger.info(f"🏢 Initiation paiement en agence pour {client_name}")
+
+        # Appeler le service Mobile Money pour traiter le paiement en agence
+        from app.services.mobile_money import mobile_money_service
+
+        result = await mobile_money_service.process_pay_on_agency(
+            souscription_id=souscription_id,
+            client_name=client_name,
+            client_phone=client_phone,
+            product_type=product_type,
+            amount=amount
+        )
+
+        return result
+
+    except Exception as e:
+        logger.error(f"❌ Erreur paiement en agence: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Erreur lors de l'enregistrement du paiement en agence."
         }
 
 
@@ -968,4 +1214,6 @@ ALL_AGENT_TOOLS = [
     # Payment tools
     initiate_momo_payment,
     initiate_airtel_payment,
+    initiate_pay_on_delivery,
+    initiate_pay_on_agency,
 ]

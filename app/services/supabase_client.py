@@ -46,6 +46,17 @@ class SupabaseService:
             logger.error(f"Erreur récupération client: {e}")
             return None
 
+    async def get_client_by_id(self, client_id: UUID) -> Optional[ClientInDB]:
+        """Récupère un client par son ID"""
+        try:
+            response = self.client.table("clients").select("*").eq("id", str(client_id)).execute()
+            if response.data and len(response.data) > 0:
+                return ClientInDB(**response.data[0])
+            return None
+        except Exception as e:
+            logger.error(f"Erreur récupération client par ID: {e}")
+            return None
+
     async def create_client(self, client_data: ClientCreate) -> Optional[ClientInDB]:
         """Crée un nouveau client"""
         try:
@@ -120,8 +131,7 @@ class SupabaseService:
         try:
             payload = data.model_dump(exclude_none=True)
             payload["souscription_id"] = str(souscription_id)
-            # IMPORTANT: La table souscription_auto utilise "statut" et non "status"
-            payload["statut"] = "validee"
+            # Note: status est dans la table souscriptions, pas ici
 
             response = self.client.table("souscription_auto").insert(payload).execute()
             return response.data is not None and len(response.data) > 0
@@ -134,7 +144,7 @@ class SupabaseService:
         try:
             payload = data.model_dump(exclude_none=True)
             payload["souscription_id"] = str(souscription_id)
-            payload["status"] = "validee"
+            # Note: status est dans la table souscriptions, pas ici
 
             response = self.client.table("souscription_voyage").insert(payload).execute()
             return response.data is not None and len(response.data) > 0
@@ -147,7 +157,7 @@ class SupabaseService:
         try:
             payload = data.model_dump(exclude_none=True)
             payload["souscription_id"] = str(souscription_id)
-            payload["status"] = "validee"
+            # Note: status est dans la table souscriptions, pas ici
 
             response = self.client.table("souscription_iac").insert(payload).execute()
             return response.data is not None and len(response.data) > 0
@@ -160,7 +170,7 @@ class SupabaseService:
         try:
             payload = data.model_dump(exclude_none=True)
             payload["souscription_id"] = str(souscription_id)
-            payload["status"] = "validee"
+            # Note: status est dans la table souscriptions, pas ici
 
             response = self.client.table("souscription_mrh").insert(payload).execute()
             return response.data is not None and len(response.data) > 0
@@ -172,8 +182,12 @@ class SupabaseService:
     # DOCUMENTS
     # ========================================================================
 
-    async def save_document(self, doc_data: DocumentUpload) -> bool:
-        """Enregistre un document"""
+    async def save_document(self, doc_data: DocumentUpload) -> Optional[Dict[str, Any]]:
+        """Enregistre un document
+
+        Returns:
+            Dict avec les données du document créé, ou None en cas d'erreur
+        """
         try:
             payload = {
                 "souscription_id": str(doc_data.souscription_id),
@@ -182,10 +196,12 @@ class SupabaseService:
                 "nom": doc_data.nom
             }
             response = self.client.table("documents").insert(payload).execute()
-            return response.data is not None and len(response.data) > 0
+            if response.data and len(response.data) > 0:
+                return response.data[0]
+            return None
         except Exception as e:
             logger.error(f"Erreur enregistrement document: {e}")
-            return False
+            return None
 
     async def update_document_pdf(self, souscription_id: UUID, pdf_url: str) -> bool:
         """Met à jour l'URL du PDF généré"""
@@ -225,9 +241,17 @@ class SupabaseService:
         amount: float,
         reference: str,
         payment_method: str,
-        status: str = "pending"
-    ) -> bool:
-        """Crée une transaction de paiement"""
+        status: str = "en_attente"
+    ) -> Optional[Dict[str, Any]]:
+        """Crée une transaction de paiement
+
+        Args:
+            status: Statut de la transaction (en_attente, en_cours, valide, expirée, annulée)
+                   Défaut: en_attente
+
+        Returns:
+            Dict avec les données de la transaction créée, ou None en cas d'erreur
+        """
         try:
             payload = {
                 "souscription_id": str(souscription_id),
@@ -237,10 +261,12 @@ class SupabaseService:
                 "status": status
             }
             response = self.client.table("transactions").insert(payload).execute()
-            return response.data is not None and len(response.data) > 0
+            if response.data and len(response.data) > 0:
+                return response.data[0]
+            return None
         except Exception as e:
             logger.error(f"Erreur création transaction: {e}")
-            return False
+            return None
 
     async def update_transaction_status(self, reference: str, status: str) -> bool:
         """Met à jour le statut d'une transaction"""
@@ -251,6 +277,29 @@ class SupabaseService:
             return response.data is not None
         except Exception as e:
             logger.error(f"Erreur mise à jour transaction: {e}")
+            return False
+
+    async def get_transaction_by_reference(self, reference: str) -> Optional[Dict[str, Any]]:
+        """Récupère une transaction par sa référence"""
+        try:
+            response = self.client.table("transactions").select("*").eq("reference", reference).execute()
+            if response.data and len(response.data) > 0:
+                return response.data[0]
+            return None
+        except Exception as e:
+            logger.error(f"Erreur récupération transaction: {e}")
+            return None
+
+    async def update_souscription_status(self, souscription_id: str, status: str) -> bool:
+        """Met à jour le statut d'une souscription"""
+        try:
+            response = self.client.table("souscriptions").update({
+                "status": status
+            }).eq("id", souscription_id).execute()
+            logger.info(f"Souscription {souscription_id} mise à jour: status={status}")
+            return response.data is not None
+        except Exception as e:
+            logger.error(f"Erreur mise à jour souscription: {e}")
             return False
 
     # ========================================================================
